@@ -4,6 +4,11 @@ from typing import List
 from sqlmodel import Field, Relationship, SQLModel
 
 
+class UsuarioLogin(SQLModel):
+    email: str
+    senha: str
+
+
 class UsuarioBase(SQLModel):
     nome: str
     email: str

@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload
 from sqlmodel import Session
 
 from api.db import engine
-from api.models import Usuario, UsuarioCreate
+from api.models import Usuario, UsuarioCreate, UsuarioLogin
 
 router = APIRouter(prefix="/usuarios")
 
@@ -27,4 +27,15 @@ async def get_usuario(id: int):
             .filter(Usuario.id == id)
             .first()
         )
+        return usuario
+
+
+@router.post("/login")
+async def login(payload: UsuarioLogin):
+    with Session(engine) as session:
+        usuario = session.exec(Usuario).filter(Usuario.email == payload.email).first()
+        if not usuario:
+            return {"mensagem": "Usuário não encontrado"}
+        if usuario.senha != payload.senha:
+            return {"mensagem": "Senha incorreta"}
         return usuario
