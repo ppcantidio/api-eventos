@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from sqlalchemy.orm import joinedload
 from sqlmodel import Session, select
 
@@ -32,7 +32,7 @@ async def get_usuario(id: int):
     with Session(engine) as session:
         usuario = session.get(Usuario, id)
         if usuario is None:
-            return {"mensagem": "Usuário não encontrado"}
+            return Response(status_code=204)
         response = usuario.model_dump()
         response["eventos"] = usuario.eventos
         response["eventos_favoritos"] = [
@@ -48,9 +48,9 @@ async def login(payload: UsuarioLogin):
         result = session.exec(statement)
         usuario = result.one_or_none()
         if not usuario:
-            return {"mensagem": "Usuário não encontrado"}
+            return Response(status_code=204)
         if usuario.senha != payload.senha:
-            return {"mensagem": "Senha incorreta"}
+            return Response(status_code=204)
         return usuario
 
 
@@ -59,10 +59,10 @@ async def favoritar_evento(payload: FavoritarEvento, id_usuario: int):
     with Session(engine) as session:
         usuario = session.get(Usuario, id_usuario)
         if usuario is None:
-            return {"mensagem": "Usuário não encontrado"}
+            return Response(status_code=204)
         evento = session.get(Evento, payload.id_evento)
         if evento is None:
-            return {"mensagem": "Evento não encontrado"}
+            return Response(status_code=204)
 
         evento_favorito = UsuarioEventosFavoritos(
             id_usuario=id_usuario, id_evento=payload.id_evento
@@ -83,7 +83,7 @@ async def get_eventos_favoritos(id_usuario: int):
     with Session(engine) as session:
         usuario = session.get(Usuario, id_usuario)
         if usuario is None:
-            return {"mensagem": "Usuário não encontrado"}
+            return Response(status_code=204)
         return usuario.eventos_favoritos
 
 
@@ -92,10 +92,10 @@ async def deletar_evento_favorito(id_usuario: int, id_evento: int):
     with Session(engine) as session:
         usuario = session.get(Usuario, id_usuario)
         if usuario is None:
-            return {"mensagem": "Usuário não encontrado"}
+            return Response(status_code=204)
         evento_favorito = session.get(UsuarioEventosFavoritos, id_evento)
         if evento_favorito is None:
-            return {"mensagem": "Evento não encontrado"}
+            return Response(status_code=204)
         session.delete(evento_favorito)
         session.commit()
         return {"mensagem": "Evento removido dos favoritos"}

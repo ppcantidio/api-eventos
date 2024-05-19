@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from sqlmodel import Session, select
 
 from api.db import engine
@@ -20,7 +20,7 @@ async def criar_evento(payload: EventoCreate):
     with Session(engine) as session:
         usuario = session.get(Usuario, payload.id_usuario)
         if usuario is None:
-            return {"mensagem": "Usuário não encontrado"}
+            return Response(status_code=204)
         evento = Evento(**payload.model_dump())
         session.add(evento)
         session.commit()
@@ -33,7 +33,7 @@ async def get_evento(id: int):
     with Session(engine) as session:
         evento = session.get(Evento, id)
         if evento is None:
-            return {"mensagem": "Evento não encontrado"}
+            return Response(status_code=204)
         return evento
 
 
@@ -50,7 +50,7 @@ async def editar_evento(id: int, payload: EventoUpdate):
     with Session(engine) as session:
         evento = session.get(Evento, id)
         if evento is None:
-            return {"mensagem": "Evento não encontrado"}
+            return Response(status_code=204)
         evento.nome = payload.nome
         evento.descricao = payload.descricao
         evento.local = payload.local
@@ -66,7 +66,7 @@ async def deletar_evento(id: int):
     with Session(engine) as session:
         evento = session.get(Evento, id)
         if evento is None:
-            return {"mensagem": "Evento não encontrado"}
+            return Response(status_code=204)
         session.delete(evento)
         session.commit()
 
