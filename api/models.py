@@ -24,10 +24,18 @@ class Usuario(UsuarioBase, table=True):
     eventos: List["Evento"] = Relationship(back_populates="usuario")
 
 
-class Evento(SQLModel):
-    id: int = Field(default=None, primary_key=True)
+class EventoBase(SQLModel):
+    id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     nome: str
     descricao: str
     local: str
     data: datetime
+
+
+class EventoCreate(EventoBase):
+    pass
+
+
+class Evento(EventoBase):
+    id: int = Field(default=None, primary_key=True)
     usuario: Usuario = Relationship(back_populates="eventos")

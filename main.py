@@ -5,6 +5,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from api.db import create_db_and_tables
+from api.routers import evento_router
 
 logger = logging.getLogger("api")
 
@@ -21,6 +22,7 @@ def add_routers(app: FastAPI):
     from api.routers import usuario_router
 
     app.include_router(usuario_router.router)
+    app.include_router(evento_router.router)
 
 
 def create_app() -> FastAPI:
