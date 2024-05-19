@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter
 from sqlalchemy.orm import joinedload
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from api.db import engine
 from api.models import (
@@ -17,7 +17,7 @@ from api.models import (
 router = APIRouter(prefix="/usuarios")
 
 
-@router.post("/", response_model=Usuario)
+@router.post("/")
 async def criar_usuario(payload: UsuarioCreate):
     with Session(engine) as session:
         usuario = Usuario(**payload.model_dump())
@@ -27,22 +27,23 @@ async def criar_usuario(payload: UsuarioCreate):
         return usuario
 
 
-@router.get("/{id}", response_model=Usuario)
+@router.get("/{id}")
 async def get_usuario(id: int):
     with Session(engine) as session:
-        usuario = (
-            session.exec(Usuario)
-            .options(joinedload(Usuario.eventos))
-            .filter(Usuario.id == id)
-            .first()
-        )
-        return usuario
+        usuario = session.get(Usuario, id)
+        if usuario is None:
+            return {"mensagem": "Usuário não encontrado"}
+        response = usuario.model_dump()
+        response["eventos"] = usuario.eventos
+        return response
 
 
 @router.post("/login")
 async def login(payload: UsuarioLogin):
     with Session(engine) as session:
-        usuario = session.exec(Usuario).filter(Usuario.email == payload.email).first()
+        statement = select(Usuario).where(Usuario.email == payload.email)
+        result = session.exec(statement)
+        usuario = result.one()
         if not usuario:
             return {"mensagem": "Usuário não encontrado"}
         if usuario.senha != payload.senha:
@@ -66,7 +67,7 @@ async def favoritar_evento(payload: FavoritarEvento, id_usuario: int):
         return usuario
 
 
-@router.get("/{id_usuario}/eventos_favoritos", response_model=List[Evento])
+@router.get("/{id_usuario}/eventos_favoritos")
 async def get_eventos_favoritos(id_usuario: int):
     with Session(engine) as session:
         usuario = session.get(Usuario, id_usuario)
