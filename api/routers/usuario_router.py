@@ -5,7 +5,14 @@ from sqlalchemy.orm import joinedload
 from sqlmodel import Session
 
 from api.db import engine
-from api.models import Evento, FavoritarEvento, Usuario, UsuarioCreate, UsuarioLogin
+from api.models import (
+    Evento,
+    FavoritarEvento,
+    Usuario,
+    UsuarioCreate,
+    UsuarioEventosFavoritos,
+    UsuarioLogin,
+)
 
 router = APIRouter(prefix="/usuarios")
 
@@ -66,3 +73,17 @@ async def get_eventos_favoritos(id_usuario: int):
         if usuario is None:
             return {"mensagem": "Usuário não encontrado"}
         return usuario.eventos_favoritos
+
+
+@router.delete("/{id_usuario}/eventos_favoritos/{id_evento}")
+async def deletar_evento_favorito(id_usuario: int, id_evento: int):
+    with Session(engine) as session:
+        usuario = session.get(Usuario, id_usuario)
+        if usuario is None:
+            return {"mensagem": "Usuário não encontrado"}
+        evento_favorito = session.get(UsuarioEventosFavoritos, id_evento)
+        if evento_favorito is None:
+            return {"mensagem": "Evento não encontrado"}
+        session.delete(evento_favorito)
+        session.commit()
+        return {"mensagem": "Evento removido dos favoritos"}
