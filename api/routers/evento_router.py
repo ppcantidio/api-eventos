@@ -36,3 +36,19 @@ async def get_eventos():
     with Session(engine) as session:
         eventos = session.exec(Evento).all()
         return eventos
+
+
+@router.put("/{id}", response_model=Evento)
+async def editar_evento(id: int, payload: EventoCreate):
+    with Session(engine) as session:
+        evento = session.get(Evento, id)
+        if evento is None:
+            return {"mensagem": "Evento não encontrado"}
+        evento.nome = payload.nome
+        evento.descricao = payload.descricao
+        evento.local = payload.local
+        evento.data = payload.data
+        session.add(evento)
+        session.commit()
+        session.refresh(evento)
+        return evento
