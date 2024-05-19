@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from api.db import engine
 from api.models import Evento, EventoCreate, Usuario
@@ -34,7 +34,8 @@ async def get_evento(id: int):
 @router.get("/")
 async def get_eventos():
     with Session(engine) as session:
-        eventos = session.exec(Evento).all()
+        statement = select(Evento)
+        eventos = session.exec(statement).all()
         return eventos
 
 
