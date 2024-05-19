@@ -102,7 +102,12 @@ async def deletar_evento_favorito(id_usuario: int, id_evento: int):
         usuario = session.get(Usuario, id_usuario)
         if usuario is None:
             return Response(status_code=204)
-        evento_favorito = session.get(UsuarioEventosFavoritos, id_evento)
+
+        statment = select(UsuarioEventosFavoritos).where(
+            UsuarioEventosFavoritos.id_evento == id_evento
+        )
+        result = session.exec(statment)
+        evento_favorito = result.one_or_none()
         if evento_favorito is None:
             return Response(status_code=204)
         session.delete(evento_favorito)
