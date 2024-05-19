@@ -19,7 +19,7 @@ class EventoUpdate(EventoBase):
     pass
 
 
-class Evento(EventoBase, table=True):
+class Evento(EventoCreate, table=True):
     __tablename__ = "eventos"
     id: int = Field(default=None, primary_key=True)
     usuario: "Usuario" = Relationship(back_populates="eventos")
