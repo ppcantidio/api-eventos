@@ -20,7 +20,7 @@ router = APIRouter(prefix="/usuarios")
 @router.post("/", response_model=Usuario)
 async def criar_usuario(payload: UsuarioCreate):
     with Session(engine) as session:
-        usuario = Usuario.model_validate(payload)
+        usuario = Usuario(**payload.model_dump())
         session.add(usuario)
         session.commit()
         session.refresh(usuario)
