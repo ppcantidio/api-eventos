@@ -5,7 +5,6 @@ from sqlmodel import Field, Relationship, SQLModel
 
 
 class EventoBase(SQLModel):
-    id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     nome: str
     descricao: str
     local: str
@@ -13,6 +12,10 @@ class EventoBase(SQLModel):
 
 
 class EventoCreate(EventoBase):
+    id_usuario: int = Field(default=None, foreign_key="usuarios.id")
+
+
+class EventoUpdate(EventoBase):
     pass
 
 

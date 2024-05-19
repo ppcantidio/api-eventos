@@ -4,7 +4,13 @@ from fastapi import APIRouter
 from sqlmodel import Session, select
 
 from api.db import engine
-from api.models import Evento, EventoCreate, Usuario, UsuarioEventosFavoritos
+from api.models import (
+    Evento,
+    EventoCreate,
+    EventoUpdate,
+    Usuario,
+    UsuarioEventosFavoritos,
+)
 
 router = APIRouter(prefix="/eventos")
 
@@ -40,7 +46,7 @@ async def get_eventos():
 
 
 @router.put("/{id}")
-async def editar_evento(id: int, payload: EventoCreate):
+async def editar_evento(id: int, payload: EventoUpdate):
     with Session(engine) as session:
         evento = session.get(Evento, id)
         if evento is None:
