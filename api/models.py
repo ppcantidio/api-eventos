@@ -32,7 +32,7 @@ class UsuarioLogin(SQLModel):
 
 class UsuarioBase(SQLModel):
     nome: str
-    email: str
+    email: str = Field(unique=True)
 
 
 class UsuarioCreate(UsuarioBase):
