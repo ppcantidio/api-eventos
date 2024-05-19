@@ -46,7 +46,7 @@ async def login(payload: UsuarioLogin):
     with Session(engine) as session:
         statement = select(Usuario).where(Usuario.email == payload.email)
         result = session.exec(statement)
-        usuario = result.one()
+        usuario = result.one_or_none()
         if not usuario:
             return {"mensagem": "Usuário não encontrado"}
         if usuario.senha != payload.senha:
