@@ -1,8 +1,10 @@
+import stat
 from typing import List
 
 from fastapi import APIRouter, Response
 from sqlalchemy.orm import joinedload
 from sqlmodel import Session, select
+from starlette.responses import JSONResponse
 
 from api.db import engine
 from api.models import (
@@ -20,11 +22,18 @@ router = APIRouter(prefix="/usuarios")
 @router.post("/")
 async def criar_usuario(payload: UsuarioCreate):
     with Session(engine) as session:
-        usuario = Usuario(**payload.model_dump())
-        session.add(usuario)
-        session.commit()
-        session.refresh(usuario)
-        return usuario
+        statement = select(Usuario).where(Usuario.email == payload.email)
+        result = session.exec(statement)
+        usuario_ja_existe = result.one_or_none()
+        if usuario_ja_existe is None:
+            usuario = Usuario(**payload.model_dump())
+            session.add(usuario)
+            session.commit()
+            session.refresh(usuario)
+            return usuario
+        return Response(
+            status_code=400, content=JSONResponse({"message": "Usuário já existe"})
+        )
 
 
 @router.get("/{id}")
