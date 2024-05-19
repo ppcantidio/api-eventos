@@ -35,6 +35,9 @@ async def get_usuario(id: int):
             return {"mensagem": "Usuário não encontrado"}
         response = usuario.model_dump()
         response["eventos"] = usuario.eventos
+        response["eventos_favoritos"] = [
+            fav.evento for fav in usuario.eventos_favoritos
+        ]
         return response
 
 
@@ -60,11 +63,19 @@ async def favoritar_evento(payload: FavoritarEvento, id_usuario: int):
         evento = session.get(Evento, payload.id_evento)
         if evento is None:
             return {"mensagem": "Evento não encontrado"}
-        usuario.eventos_favoritos.append(evento)
-        session.add(usuario)
+
+        evento_favorito = UsuarioEventosFavoritos(
+            id_usuario=id_usuario, id_evento=payload.id_evento
+        )
+        session.add(evento_favorito)
         session.commit()
-        session.refresh(usuario)
-        return usuario
+        session.refresh(evento_favorito)
+        response = usuario.model_dump()
+        response["eventos"] = usuario.eventos
+        response["eventos_favoritos"] = [
+            fav.evento for fav in usuario.eventos_favoritos
+        ]
+        return response
 
 
 @router.get("/{id_usuario}/eventos_favoritos")

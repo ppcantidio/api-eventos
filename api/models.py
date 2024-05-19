@@ -56,3 +56,4 @@ class UsuarioEventosFavoritos(SQLModel, table=True):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     id_evento: int = Field(default=None, foreign_key="eventos.id")
     usuario: Usuario = Relationship(back_populates="eventos_favoritos")
+    evento: Evento = Relationship()
