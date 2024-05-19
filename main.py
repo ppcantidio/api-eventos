@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 from api.db import create_db_and_tables
 from api.routers import evento_router
@@ -25,6 +26,15 @@ def add_routers(app: FastAPI):
     app.include_router(evento_router.router)
 
 
+def add_middlewares(app: FastAPI):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
 def create_app() -> FastAPI:
     app = FastAPI()
     add_routers(app)
@@ -34,4 +44,4 @@ def create_app() -> FastAPI:
 app = create_app()
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_config=None)
