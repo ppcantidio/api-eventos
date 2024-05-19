@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from sqlmodel import Session, select
 
 from api.db import engine
-from api.models import Evento, EventoCreate, Usuario
+from api.models import Evento, EventoCreate, Usuario, UsuarioEventosFavoritos
 
 router = APIRouter(prefix="/eventos")
 
@@ -63,4 +63,12 @@ async def deletar_evento(id: int):
             return {"mensagem": "Evento não encontrado"}
         session.delete(evento)
         session.commit()
+
+        statement = select(UsuarioEventosFavoritos).where(
+            UsuarioEventosFavoritos.id_evento == id
+        )
+        favoritos = session.exec(statement).all()
+        for fav in favoritos:
+            session.delete(fav)
+            session.commit()
         return {"mensagem": "Evento deletado"}
