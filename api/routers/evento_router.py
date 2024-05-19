@@ -52,3 +52,14 @@ async def editar_evento(id: int, payload: EventoCreate):
         session.commit()
         session.refresh(evento)
         return evento
+
+
+@router.delete("/{id}")
+async def deletar_evento(id: int):
+    with Session(engine) as session:
+        evento = session.get(Evento, id)
+        if evento is None:
+            return {"mensagem": "Evento não encontrado"}
+        session.delete(evento)
+        session.commit()
+        return {"mensagem": "Evento deletado"}
